@@ -30,8 +30,10 @@ class AuthorizerQueryBehavior extends Behavior
         /** @var ActiveQuery $owner */
         $owner = $this->owner;
         $query = $this->getRelatedUserQuery($model, $relations, $user);
-        $owner->andWhere($query->where);
-        $owner->addParams($query->params);
+        if (!empty($query->where)) {
+            $owner->andWhere($query->where);
+            $owner->addParams($query->params);
+        }
         return $owner;
     }
 
