@@ -12,27 +12,37 @@ trait AuthManagerTrait
      * @var array a list of auth items between the one checked and the one assigned to the user,
      * after a successful checkAccess() call.
      */
-    protected $currentPath = [];
+    private $currentPath = [];
+    /**
+     * @var array lists of auth items between the one checked and the one assigned to the user.
+     */
+    private $paths = [];
 
     /**
-     * Returns a list of auth items between the one checked and the one assigned to the user,
-     * after a successful checkAccess() call.
+     * Returns a list of auth items between the one checked and the one assigned to the user.
+     * @param string|integer $userId the user ID. This should be either an integer or a string representing
+     * the unique identifier of a user. See [[\yii\web\User::id]].
+     * @param string $permissionName the name of the permission to be checked against
+     * @param array $params name-value pairs that will be passed to the rules associated
+     * with the roles and permissions assigned to the user.
+     * @param boolean $allowCaching whether to allow caching the result of access check.
+     * When this parameter is true (default), if the access check of an operation was performed
+     * before, its result will be directly returned when calling this method to check the same
+     * operation. If this parameter is false, this method will always call
+     * [[\yii\rbac\ManagerInterface::checkAccess()]] to obtain the up-to-date access result. Note that this
+     * caching is effective only within the same request and only works when `$params = []`.
      * @return array
      */
-    public function getCurrentPath()
+    public function getPath($userId, $permissionName, $params = [], $allowCaching = true)
     {
+        if ($allowCaching && empty($params) && isset($this->paths[$userId][$permissionName])) {
+            return $this->paths[$userId][$permissionName];
+        }
+        $this->checkAccess($userId, $permissionName, $params);
+        if ($allowCaching && empty($params)) {
+            $this->paths[$userId][$permissionName] = $this->currentPath;
+        }
         return $this->currentPath;
-    }
-
-    /**
-     * This method is only used in \netis\utils\web\User.can() when loading cached results.
-     * @param array $path
-     * @return $this
-     */
-    public function setCurrentPath($path)
-    {
-        $this->currentPath = $path;
-        return $this;
     }
 
     /**
@@ -41,7 +51,11 @@ trait AuthManagerTrait
     public function checkAccess($userId, $permissionName, $params = [])
     {
         $this->currentPath = [];
-        return parent::checkAccess($userId, $permissionName, $params);
+        $result = parent::checkAccess($userId, $permissionName, $params);
+        if (empty($params)) {
+            $this->paths[$userId][$permissionName] = $this->currentPath;
+        }
+        return $result;
     }
 
     /**

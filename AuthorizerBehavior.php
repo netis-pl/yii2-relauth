@@ -110,10 +110,15 @@ class AuthorizerBehavior extends Behavior
     /**
      * Returns values of the 'relations' data param stored in auth items
      * traversed by last call to \netis\rbac\DbManager::checkAccess().
+     * @param string|integer $userId the user ID. This should be either an integer or a string representing
+     * the unique identifier of a user. See [[\yii\web\User::id]].
+     * @param string $permissionName the name of the permission to be checked against
+     * @param array $params name-value pairs that will be passed to the rules associated
+     * with the roles and permissions assigned to the user.
      * @return array
      * @throws Exception
      */
-    public function getCheckedRelations()
+    public function getCheckedRelations($userId, $permissionName, $params = [])
     {
         $authManager = \Yii::$app->getAuthManager();
         if (!($authManager instanceof TraceableAuthManager)) {
@@ -124,7 +129,7 @@ class AuthorizerBehavior extends Behavior
                 return ($authItem = $authManager->getPermission($name)) !== null
                 && isset($authItem->data['relations']) ? $authItem->data['relations'] : array();
             },
-            $authManager->getCurrentPath()
+            $authManager->getPath($userId, $permissionName, $params)
         );
         return empty($groups) ? [] : call_user_func_array('array_merge', $groups);
     }
