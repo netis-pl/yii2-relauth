@@ -25,11 +25,11 @@ trait AuthManagerTrait
      * @param string $permissionName the name of the permission to be checked against
      * @param array $params name-value pairs that will be passed to the rules associated
      * with the roles and permissions assigned to the user.
-     * @param boolean $allowCaching whether to allow caching the result of access check.
+     * @param boolean $allowCaching whether to allow caching the accessed path.
      * When this parameter is true (default), if the access check of an operation was performed
-     * before, its result will be directly returned when calling this method to check the same
+     * before, traversed path will be directly returned when calling this method to check the same
      * operation. If this parameter is false, this method will always call
-     * [[\yii\rbac\ManagerInterface::checkAccess()]] to obtain the up-to-date access result. Note that this
+     * [[\yii\rbac\ManagerInterface::checkAccess()]] to obtain the up-to-date traversed path. Note that this
      * caching is effective only within the same request and only works when `$params = []`.
      * @return array
      */
