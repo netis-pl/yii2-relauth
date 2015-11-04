@@ -20,6 +20,7 @@ use yii\web\IdentityInterface;
 class AuthorizerQueryBehavior extends Behavior
 {
     /**
+     * Warning! Main table in the current query should have the 't' alias set.
      * @param ActiveRecord $model     must have the AuthorizerBehavior attached
      * @param array $relations        list of model relations to check, supports dot notation for indirect relations
      * @param IdentityInterface $user if null, Yii::$app->user->identity will be used
